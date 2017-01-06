@@ -1,6 +1,38 @@
 var SEARCH = "dictionary.cambridge.org";
 var list = new InfinityFixedList(25);
 
+chrome.commands.onCommand.addListener(function(command) {
+	if(command === "go-dictionary") {
+		onTranslateCommand("pl");
+	} else if(command === "go-dictionary-eng") {
+		onTranslateCommand("en");
+	}
+});
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+	console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
+	
+	if(request.msg == "getList")
+	  sendResponse({list: list.getAll()});
+});
+
+function onTranslateCommand(lang) {
+	searchDictionaryTab(function(tab) {
+		getSelection(function(word) {
+			if(tab == null) {
+				var href = "http://dictionary.cambridge.org/dictionary/" + (lang == "en" ? "english" : "english-polish") + "/" + word;
+				chrome.tabs.create({url: href}, function(tab) {
+					afterUpdateTab(tab);
+				});
+			} else {
+				updateTabUrl(word, lang, tab);
+			}
+
+			list.insert(word);
+		});
+	});
+}
+
 function searchDictionaryTab(listener) {
 	chrome.tabs.query({}, function(a) {	
 		var tab = null;
@@ -17,22 +49,18 @@ function searchDictionaryTab(listener) {
 	});
 }
 
-function showAlertThatTabIsNotOpen() {
-	alert("You have to firstly open http://dictionary.cambridge.org");
+function afterUpdateTab(tab) {
+	var listener = function(tabId, info) {
+		if(tabId == tab.id && info.status == "complete") {
+			chrome.tabs.executeScript(tab.id, { code: "var s = document.querySelectorAll('.fcdo-volume-up'); if(s != null) s[1].click();" });
+			chrome.tabs.onUpdated.removeListener(listener);
+		}
+	};
+
+	chrome.tabs.onUpdated.addListener(listener);
 }
 
 function updateTabUrl(word, targetLang, dictionaryTab) {
-	function afterUpdateTab(tab) {
-		var listener = function(tabId, info) {
-			if(tabId == tab.id && info.status == "complete") {
-				chrome.tabs.executeScript(tab.id, { code: "var s = document.querySelectorAll('.fcdo-volume-up'); if(s != null) s[1].click();" });
-				chrome.tabs.onUpdated.removeListener(listener);
-			}
-		};
-
-		chrome.tabs.onUpdated.addListener(listener);
-	}
-
 	if(targetLang === "pl") {
 		chrome.tabs.update(dictionaryTab.id, {
 			active: true,
@@ -56,29 +84,6 @@ function getSelection(listener) {
 	});
 }
 
-function onTranslateCommand(lang) {
-	searchDictionaryTab(function(tab) {
-		getSelection(function(word) {
-			if(tab == null) {
-				var href = "http://dictionary.cambridge.org/dictionary/" + (lang == "en" ? "english" : "english-polish") + "/" + word;
-				chrome.tabs.create({url: href});
-			} else {
-				updateTabUrl(word, lang, tab);
-			}
-
-			list.insert(word);
-		});
-	});
-}
-
-chrome.commands.onCommand.addListener(function(command) {
-	if(command === "go-dictionary") {
-		onTranslateCommand("pl");
-	} else if(command === "go-dictionary-eng") {
-		onTranslateCommand("en");
-	}
-});
-
 function InfinityFixedList(size) {
 	this.size = size;
 	this.elements = new Array(size);
@@ -95,17 +100,8 @@ InfinityFixedList.prototype.getAll = function() {
 InfinityFixedList.prototype.insert = function(word) {
 	var a = { date: new Date().getTime(), theWord: word };
 
-	/*console.log("Inserted new word to list; date=" + a.date + "; word=" + a.theWord);*/
-
 	this.elements[this.currentIndex++] = a;
 
 	if(this.currentIndex == this.elements.length)
 		this.currentIndex = 0;
 }
-
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-	console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
-	
-	if(request.msg == "getList")
-	  sendResponse({list: list.getAll()});
-});
