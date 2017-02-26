@@ -1,6 +1,14 @@
 var SEARCH = "dictionary.cambridge.org";
 var list = new InfinityFixedList(25);
 
+chrome.contextMenus.create({
+	title: "CambridgeDictionary: %s",
+	contexts: ["selection"],
+	onclick: function(info, tab) {
+		onContextMenuCommand("pl", info.selectionText.trim().toLowerCase());
+	}
+});
+
 chrome.commands.onCommand.addListener(function(command) {
 	if(command === "go-dictionary") {
 		onTranslateCommand("pl");
@@ -16,6 +24,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	  sendResponse({list: list.getAll()});
 });
 
+// redundant below two functions
 function onTranslateCommand(lang) {
 	searchDictionaryTab(function(tab) {
 		getSelection(function(word) {
@@ -32,6 +41,22 @@ function onTranslateCommand(lang) {
 		});
 	});
 }
+
+function onContextMenuCommand(lang, word) {
+	searchDictionaryTab(function(tab) {
+		if(tab == null) {
+			var href = "http://dictionary.cambridge.org/dictionary/" + (lang == "en" ? "english" : "english-polish") + "/" + word;
+			chrome.tabs.create({url: href}, function(tab) {
+				afterUpdateTab(tab);
+			});
+		} else {
+			updateTabUrl(word, lang, tab);
+		}
+
+		list.insert(word);
+	});
+}
+// ###############################
 
 function searchDictionaryTab(listener) {
 	chrome.tabs.query({}, function(a) {	
