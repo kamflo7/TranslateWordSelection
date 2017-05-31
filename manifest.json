@@ -17,14 +17,20 @@
       "suggested_key": {
         "default": "Alt+S"
         },
-      "description": "go dictionary with selected word"
+      "description": "translate with selected word"
     },
     "go-dictionary-eng": {
       "suggested_key": {
         "default": "Alt+X"
         },
-      "description": "go dictionary with selected word (eng)"
-    }
+      "description": "translate with selected word (eng)"
+    },
+	"dispatch-word-outside": {
+		"suggested_key": {
+			"default": "Alt+C"
+		},
+		"description": "make local http get request passing last search word"
+	}
   },
   "permissions": [
     "activeTab",

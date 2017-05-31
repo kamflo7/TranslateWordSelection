@@ -3,6 +3,13 @@ var SEARCH_FIELD_ID = "cdo-search-input";
 var SUBMIT_BUTTON = "button.cdo-search__button";
 var list = new InfinityFixedList(25);
 
+var lastSearchWord;
+
+
+var API_enabled = true;
+var API_port = 9898;
+var API_uriContext = "insertWord";
+
 (function initScript() {
 	chrome.contextMenus.create({ 
 		title: "CambridgeDictionary: %s",
@@ -11,27 +18,29 @@ var list = new InfinityFixedList(25);
 	});
 
 	chrome.commands.onCommand.addListener(function(command) {
-		if(command === "go-dictionary")
-			onShortcutCommand("pl");
-		else if(command === "go-dictionary-eng")
-			onShortcutCommand("en");
+		if(command === "go-dictionary") {
+			getSelection(function(word) {
+				doTranslateSelection(word, "pl");
+			});
+		}
+		else if(command === "go-dictionary-eng") {
+			getSelection(function(word) {
+				doTranslateSelection(word, "en");
+			});
+		} else if(command === "dispatch-word-outside") {
+			dispatchWordOutside(lastSearchWord);
+		}
 	});
 
 	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-		//console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
 		if(request.msg == "getList")
 			sendResponse({list: list.getAll()});
 	});
 })();
 
-// Main two in order first events
-function onShortcutCommand(lang) {
-	getSelection(function(word) {
-		doTranslateSelection(word, lang);
-	});
-}
-
 function doTranslateSelection(word, lang) {
+	lastSearchWord = word;
+	
 	searchDictionaryTab(function(tab) {
 		if(tab == null) {
 			var href = "http://dictionary.cambridge.org/dictionary/" + (lang == "en" ? "english" : "english-polish") + "/" + word;
@@ -39,7 +48,6 @@ function doTranslateSelection(word, lang) {
 				afterUpdateTab(tab);
 			});
 		} else {
-			//updateTabUrl(word, lang, tab);
 			searchWordOnTargetPage(word, lang, tab);
 		}
 
@@ -67,12 +75,28 @@ function searchDictionaryTab(listener) {
 function afterUpdateTab(tab) {
 	var listener = function(tabId, info) {
 		if(tabId == tab.id && info.status == "complete") {
-			chrome.tabs.executeScript(tab.id, { code: "var s = document.querySelectorAll('.fcdo-volume-up'); if(s != null) s[1].click();" });
+			chrome.tabs.executeScript(tab.id, { code: "var s = document.querySelectorAll('.fcdo-volume-up'); var _result = 'no'; if(s != null) {s[1].click(); _result = 'true'; }" },
+			function(result) {
+				/*if(result == "true" && API_enabled) {
+					console.log("should pass word");
+					dispatchWordOutside(lastSearchWord);
+				}*/
+			});
 			chrome.tabs.onUpdated.removeListener(listener);
 		}
 	};
-
 	chrome.tabs.onUpdated.addListener(listener);
+}
+
+function dispatchWordOutside(word) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "http://localhost:"+API_port+"/"+API_uriContext+"?word="+word, true);
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == 4) {
+			console.log("Got response: " + xhr.responseText);
+		}
+	}
+	xhr.send();
 }
 
 function updateTabUrl(word, targetLang, dictionaryTab) {
@@ -102,6 +126,7 @@ function searchWordOnTargetPage(word, targetLang, dictionaryTab) {
 
 function getSelection(listener) {
 	chrome.tabs.executeScript( {code: "window.getSelection().toString();"}, function(selection) {
+		//console.log("getSelection, selection: " + selection);
 		listener(selection[0].trim().toLowerCase());
 	});
 }

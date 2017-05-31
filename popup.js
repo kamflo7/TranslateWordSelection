@@ -8,10 +8,14 @@ function formatTimeDifference(currentDate, timestamp) {
 	if(difference < 3600) {
 		var minutes = Math.floor(difference / 60);
 		var seconds = Math.floor(difference % 60);
-		return twoDigit(minutes) + "m:" + twoDigit(seconds) + "s ago";
+		
+		if(minutes >= 1)
+			return minutes + "m ago";
+		else
+			return seconds + "s ago";
 	} else {
 		var d = new Date(timestamp);
-		return twoDigit(d.getHours()) + ":" + twoDigit(d.getMinutes());
+		return d.getHours() + ":" + twoDigit(d.getMinutes());
 	}
 }
 
