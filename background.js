@@ -88,8 +88,6 @@ function afterUpdateTab(tab) {
 	chrome.tabs.onUpdated.addListener(listener);
 }
 
-// path to PRONUNCIATION
-// document.querySelector("#entryContent > div.cdo-dblclick-area > div > div > div.di-head.normal-entry > span > span:nth-child(2) > span.pron > span").innerText
 function dispatchWordOutside(word) {
 	searchDictionaryTab(function(tab) {
 		if(tab == null) {
@@ -98,8 +96,10 @@ function dispatchWordOutside(word) {
 		}
 
 		
-		chrome.tabs.sendMessage(tab.id, {action: "getPronunciation"}, function(response) {
+		chrome.tabs.sendMessage(tab.id, {action: "getTranslation"}, function(response) {
 			console.log("[Background:] getPronunciation resopnse: " + response.data);
+			var translationObj = JSON.parse(response.data);
+
 		});
 		
 		console.log("[Background] I should send runtime message");
@@ -136,7 +136,7 @@ function updateTabUrl(word, targetLang, dictionaryTab) {
 
 function searchWordOnTargetPage(word, targetLang, dictionaryTab) {
 	console.log(dictionaryTab);
-	chrome.tabs.executeScript(dictionaryTab.id, { code: 'document.getElementById("cdo-search-input").value = "'+word+'"; document.querySelector("button.cdo-search__button").click();' }, function(e) {
+	chrome.tabs.executeScript(dictionaryTab.id, { code: 'document.getElementById("cdo-search-input").value = "'+word+'"; document.querySelector("'+SUBMIT_BUTTON+'").click();' }, function(e) {
 		afterUpdateTab(dictionaryTab);
 	});
 }
