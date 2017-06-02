@@ -88,15 +88,32 @@ function afterUpdateTab(tab) {
 	chrome.tabs.onUpdated.addListener(listener);
 }
 
+// path to PRONUNCIATION
+// document.querySelector("#entryContent > div.cdo-dblclick-area > div > div > div.di-head.normal-entry > span > span:nth-child(2) > span.pron > span").innerText
 function dispatchWordOutside(word) {
-	var xhr = new XMLHttpRequest();
+	searchDictionaryTab(function(tab) {
+		if(tab == null) {
+			console.log("[Background] I cannot send runtime message because tab not exists");
+			return;
+		}
+
+		
+		chrome.tabs.sendMessage(tab.id, {action: "getPronunciation"}, function(response) {
+			console.log("[Background:] getPronunciation resopnse: " + response.data);
+		});
+		
+		console.log("[Background] I should send runtime message");
+	});
+
+
+	/*var xhr = new XMLHttpRequest();
 	xhr.open("GET", "http://localhost:"+API_port+"/"+API_uriContext+"?word="+word, true);
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4) {
 			console.log("Got response: " + xhr.responseText);
 		}
 	}
-	xhr.send();
+	xhr.send();*/
 }
 
 function updateTabUrl(word, targetLang, dictionaryTab) {
