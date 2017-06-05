@@ -105,7 +105,7 @@ function dispatchWordOutside(word) {
 	});
 			
 			
-	searchDictionaryTab(function(tab) {
+	/*searchDictionaryTab(function(tab) {
 		if(tab == null) {
 			console.log("[Background] I cannot send runtime message because tab not exists");
 			return;
@@ -120,7 +120,7 @@ function dispatchWordOutside(word) {
 		});
 		
 		console.log("[Background] I should send runtime message");
-	});
+	});*/
 }
 
 function updateTabUrl(word, targetLang, dictionaryTab) {

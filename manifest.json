@@ -45,5 +45,9 @@
 		"matches": ["http://dictionary.cambridge.org/*"],
 		"js": ["inject.js"]
 	}
+  ],
+  "web_accessible_resources": [
+	"dialog.html",
+	"dialog.css"
   ]
 }
