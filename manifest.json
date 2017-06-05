@@ -1,9 +1,9 @@
 {
-  "manifest_version": 6,
+  "manifest_version": 7,
 
   "name": "My translateExtension",
   "description": "Select the unknow word on page and press ALT+S (PL+EN) or ALT+X (EN)",
-  "version": "1.6",
+  "version": "1.7",
 
   "browser_action": {
     "default_icon": "dictionary.png",
@@ -35,8 +35,8 @@
   "permissions": [
     "activeTab",
     "https://ajax.googleapis.com/",
-	   "tabs",
-     "http://*/",
+	  "tabs",
+     "<all_urls>",
      "contextMenus"
   ],
   

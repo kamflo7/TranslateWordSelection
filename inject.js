@@ -4,6 +4,7 @@ window.onload = function() {
 	chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 		if(msg.action == "getTranslation") {
 			var translation = getTranslationData();
+			console.log("[Inject.js] Request for: 'getTranslation'");
 			
 			sendResponse({ data: JSON.stringify(translation) });
 		}

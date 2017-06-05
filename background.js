@@ -4,11 +4,12 @@ var SUBMIT_BUTTON = "button.cdo-search__button";
 var list = new InfinityFixedList(25);
 
 var lastSearchWord;
+var lastTranslationData;
 
 
 var API_enabled = true;
 var API_port = 9898;
-var API_uriContext = "insertWord";
+var API_uriContextCheckWord = "checkWord";
 
 (function initScript() {
 	chrome.contextMenus.create({ 
@@ -76,12 +77,22 @@ function afterUpdateTab(tab) {
 	var listener = function(tabId, info) {
 		if(tabId == tab.id && info.status == "complete") {
 			chrome.tabs.executeScript(tab.id, { code: "var s = document.querySelectorAll('.fcdo-volume-up'); var _result = 'no'; if(s != null) {s[1].click(); _result = 'true'; }" },
-			function(result) {
-				/*if(result == "true" && API_enabled) {
-					console.log("should pass word");
-					dispatchWordOutside(lastSearchWord);
-				}*/
+			function(result) {});
+			
+			chrome.tabs.sendMessage(tabId, {action: "getTranslation"}, function(response) {
+				console.log("[Background:] getPronunciation resopnse: " + response.data);
+				lastTranslationData = JSON.parse(response.data);
 			});
+			
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "http://localhost:"+API_port+"/"+API_uriContextCheckWord+"?word="+lastSearchWord, true);
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState == 4) {
+					console.log("Got response: " + xhr.responseText);
+				}
+			}
+			xhr.send();
+			
 			chrome.tabs.onUpdated.removeListener(listener);
 		}
 	};
@@ -89,6 +100,11 @@ function afterUpdateTab(tab) {
 }
 
 function dispatchWordOutside(word) {
+	chrome.tabs.executeScript(null, { file: "injectDialog.js" }, function(result) {
+		console.log("[Response from injectDialog] " + result);
+	});
+			
+			
 	searchDictionaryTab(function(tab) {
 		if(tab == null) {
 			console.log("[Background] I cannot send runtime message because tab not exists");
@@ -100,20 +116,11 @@ function dispatchWordOutside(word) {
 			console.log("[Background:] getPronunciation resopnse: " + response.data);
 			var translationObj = JSON.parse(response.data);
 
+			
 		});
 		
 		console.log("[Background] I should send runtime message");
 	});
-
-
-	/*var xhr = new XMLHttpRequest();
-	xhr.open("GET", "http://localhost:"+API_port+"/"+API_uriContext+"?word="+word, true);
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState == 4) {
-			console.log("Got response: " + xhr.responseText);
-		}
-	}
-	xhr.send();*/
 }
 
 function updateTabUrl(word, targetLang, dictionaryTab) {
