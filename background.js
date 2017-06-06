@@ -100,8 +100,10 @@ function afterUpdateTab(tab) {
 }
 
 function dispatchWordOutside(word) {
+	console.log("[background.js] origin: " + window.location.origin);
 	chrome.tabs.executeScript(null, { file: "injectDialog.js" }, function(result) {
 		console.log("[Response from injectDialog] " + result);
+		
 	});
 			
 			
