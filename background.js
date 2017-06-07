@@ -10,6 +10,7 @@ var lastTranslationData;
 var API_enabled = true;
 var API_port = 9898;
 var API_uriContextCheckWord = "checkWord";
+var API_uriContextInsertWord = "insertWord";
 
 var tabIdInjectedScript = chrome.tabs.TAB_ID_NONE;
 
@@ -44,7 +45,23 @@ var tabIdInjectedScript = chrome.tabs.TAB_ID_NONE;
 			sendResponse({list: list.getAll()});
 		else if(request.action == "acceptDialog") {
 			console.log("I finally got data to push to the server!");
-			//todo
+			
+			var data = request.data;
+			var query = "w=" + data.searchWord +
+						"&p=" + data.pronunciation +
+						"&m=" + data.meaning +
+						"&e=" + data.example;
+			
+			var xhr = new XMLHttpRequest();
+			
+			xhr.open("GET", "http://localhost:"+API_port+"/"+API_uriContextInsertWord+"?"+query, true);
+			xhr.send();
+			
+			/*
+			var http = new XMLHttpRequest();
+			http.open("POST", "http://localhost:"+API_port+"/"+API_uriContextInsertWord, true);
+			http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			http.send(query);*/
 		}
 	});
 })();

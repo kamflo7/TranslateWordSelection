@@ -36,7 +36,8 @@
 	"https://ajax.googleapis.com/",
 	"tabs",
 	"http://dictionary.cambridge.org/*",
-	"contextMenus"
+	"contextMenus",
+	"<all_urls>"
   ],
   
   "content_scripts": [
