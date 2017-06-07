@@ -1,5 +1,6 @@
 var onAcceptDialog = function() {
-	window.parent.postMessage("You've clicked accept", "*");
+	//window.parent.postMessage("You've clicked accept", "*");
+	window.parent.postMessage({action: 'acceptDialog', data: dialogFieldsToObject()}, "*");
 }
 
 var onDismissDialog = function() {
@@ -38,4 +39,15 @@ window.onload = function() {
 	}, false);
 	
 	window.parent.postMessage({ action: "getTranslationData" }, "*");
+}
+
+function dialogFieldsToObject() {
+	var result = new Object();
+	
+	result.searchWord = document.getElementById("searchWord").value.trim();
+	result.pronunciation = document.getElementById("pronunciation").value.trim();
+	result.meaning = document.getElementById("meaning").value.trim();
+	result.example = document.getElementById("example").value.trim();
+	
+	return result;
 }

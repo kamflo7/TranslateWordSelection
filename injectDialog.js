@@ -24,9 +24,11 @@ window.addEventListener("message", function(e) {
 		
 		if(e.data.action == "getTranslationData") {
 			chrome.runtime.sendMessage({ action: "getTranslationData" }, function(response) {
-				console.log("[injectDialog][Runtime::sendMessage->response] I got message: " + JSON.stringify(response));
+				//console.log("[injectDialog][Runtime::sendMessage->response (getTranslationData)] I got message: " + JSON.stringify(response));
 				iframe.contentWindow.postMessage({ action: "giveTranslationData", data: response.data}, extensionOrigin);
 			});
+		} else if(e.data.action == "acceptDialog") {
+			chrome.runtime.sendMessage({ action: "acceptDialog", data: e.data.data});
 		}
 	}
 });

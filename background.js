@@ -32,19 +32,18 @@ var API_uriContextCheckWord = "checkWord";
 			dispatchWordOutside(lastSearchWord);
 		}
 	});
-
-	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-		if(request.msg == "getList")
-			sendResponse({list: list.getAll()});
-	});
 	
-	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-		//console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
-		//if (request.greeting == "hello")
-			//sendResponse({farewell: "goodbye"});
-		
+	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {		
 		console.log("[Background][Runtime::onMessage] I got message: " + JSON.stringify(request));
-		sendResponse({action: "give", data: lastTranslationData});
+		
+		if(request.action == "getTranslationData")
+			sendResponse({action: "give", data: lastTranslationData});
+		else if(request.action == "getList")
+			sendResponse({list: list.getAll()});
+		else if(request.action == "acceptDialog") {
+			console.log("I finally got data to push to the server!");
+			//todo
+		}
 	});
 })();
 
@@ -98,7 +97,7 @@ function afterUpdateTab(tab) {
 			xhr.open("GET", "http://localhost:"+API_port+"/"+API_uriContextCheckWord+"?word="+lastSearchWord, true);
 			xhr.onreadystatechange = function() {
 				if (xhr.readyState == 4) {
-					console.log("Got response: " + xhr.responseText);
+					//console.log("Got response: " + xhr.responseText);
 				}
 			}
 			xhr.send();

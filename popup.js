@@ -22,7 +22,7 @@ function formatTimeDifference(currentDate, timestamp) {
 document.addEventListener('DOMContentLoaded', function() {
 	var d = document.getElementById("result");
 
-	chrome.runtime.sendMessage({msg: "getList"}, function(response) {
+	chrome.runtime.sendMessage({action: "getList"}, function(response) {
 		var html = "";
 		var currentDate = new Date();
 
