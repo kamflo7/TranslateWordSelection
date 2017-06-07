@@ -1,4 +1,5 @@
 // #3 insert IFRAME to document due to style variations from original sites
+var extensionOrigin = "chrome-extension://gbhegaeilndhkfpnhdpkbnmolcpaahcd";
 
 var iframe;
 
@@ -18,7 +19,14 @@ console.log("[injectDialog.js] origin: " + window.location.origin);
 createIframeIntoPage();
 
 window.addEventListener("message", function(e) {
-	
-	console.log("[injectDialog] onMessage: " + e.origin + "; data: " + e.data);
-	//if(e.origin.indexOf('')
+	if(e.origin.indexOf(extensionOrigin) == 0) {
+		console.log("[injectDialog] Got window.message: " + JSON.stringify(e.data));
+		
+		if(e.data.action == "getTranslationData") {
+			chrome.runtime.sendMessage({ action: "getTranslationData" }, function(response) {
+				console.log("[injectDialog][Runtime::sendMessage->response] I got message: " + JSON.stringify(response));
+				iframe.contentWindow.postMessage({ action: "giveTranslationData", data: response.data}, extensionOrigin);
+			});
+		}
+	}
 });

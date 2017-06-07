@@ -37,6 +37,15 @@ var API_uriContextCheckWord = "checkWord";
 		if(request.msg == "getList")
 			sendResponse({list: list.getAll()});
 	});
+	
+	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+		//console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
+		//if (request.greeting == "hello")
+			//sendResponse({farewell: "goodbye"});
+		
+		console.log("[Background][Runtime::onMessage] I got message: " + JSON.stringify(request));
+		sendResponse({action: "give", data: lastTranslationData});
+	});
 })();
 
 function doTranslateSelection(word, lang) {
@@ -82,6 +91,7 @@ function afterUpdateTab(tab) {
 			chrome.tabs.sendMessage(tabId, {action: "getTranslation"}, function(response) {
 				console.log("[Background:] getPronunciation resopnse: " + response.data);
 				lastTranslationData = JSON.parse(response.data);
+				lastTranslationData.searchWord = lastSearchWord;
 			});
 			
 			var xhr = new XMLHttpRequest();
@@ -105,24 +115,6 @@ function dispatchWordOutside(word) {
 		console.log("[Response from injectDialog] " + result);
 		
 	});
-			
-			
-	/*searchDictionaryTab(function(tab) {
-		if(tab == null) {
-			console.log("[Background] I cannot send runtime message because tab not exists");
-			return;
-		}
-
-		
-		chrome.tabs.sendMessage(tab.id, {action: "getTranslation"}, function(response) {
-			console.log("[Background:] getPronunciation resopnse: " + response.data);
-			var translationObj = JSON.parse(response.data);
-
-			
-		});
-		
-		console.log("[Background] I should send runtime message");
-	});*/
 }
 
 function updateTabUrl(word, targetLang, dictionaryTab) {
