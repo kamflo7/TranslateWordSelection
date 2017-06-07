@@ -11,6 +11,8 @@ var API_enabled = true;
 var API_port = 9898;
 var API_uriContextCheckWord = "checkWord";
 
+var tabIdInjectedScript = chrome.tabs.TAB_ID_NONE;
+
 (function initScript() {
 	chrome.contextMenus.create({ 
 		title: "CambridgeDictionary: %s",
@@ -95,11 +97,11 @@ function afterUpdateTab(tab) {
 			
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", "http://localhost:"+API_port+"/"+API_uriContextCheckWord+"?word="+lastSearchWord, true);
-			xhr.onreadystatechange = function() {
+			/*xhr.onreadystatechange = function() {
 				if (xhr.readyState == 4) {
-					//console.log("Got response: " + xhr.responseText);
+
 				}
-			}
+			}*/
 			xhr.send();
 			
 			chrome.tabs.onUpdated.removeListener(listener);
@@ -108,11 +110,39 @@ function afterUpdateTab(tab) {
 	chrome.tabs.onUpdated.addListener(listener);
 }
 
-function dispatchWordOutside(word) {
-	console.log("[background.js] origin: " + window.location.origin);
-	chrome.tabs.executeScript(null, { file: "injectDialog.js" }, function(result) {
-		console.log("[Response from injectDialog] " + result);
-		
+function dispatchWordOutside(word) {	
+	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+		var currentTabID = tabs[0].id;
+			
+		// Could add support to not remove Iframe and create again, if current tab is the same, maybe later
+		if(tabIdInjectedScript != chrome.tabs.TAB_ID_NONE) {
+			var codeScript = 
+					`var rem = document.getElementById("dictionaryIframe");
+					rem.parentNode.removeChild(rem);`;
+			chrome.tabs.executeScript(tabIdInjectedScript, { code: codeScript });
+
+			
+			chrome.tabs.executeScript(null, { file: "injectDialog.js" });
+			tabIdInjectedScript = currentTabID;
+			
+			/*if(tabIdInjectedScript == currentTabID) {
+				
+			} else {
+				console.log("Should delete Iframe");
+
+				var codeScript = 
+					`var rem = document.getElementById("dictionaryIframe");
+					rem.parentNode.removeChild(rem);`;
+				chrome.tabs.executeScript(tabIdInjectedScript, { code: codeScript });
+
+				
+				chrome.tabs.executeScript(null, { file: "injectDialog.js" });
+				tabIdInjectedScript = currentTabID;
+			}*/
+		} else {
+			chrome.tabs.executeScript(null, { file: "injectDialog.js" });
+			tabIdInjectedScript = currentTabID;
+		}
 	});
 }
 
@@ -136,7 +166,7 @@ function updateTabUrl(word, targetLang, dictionaryTab) {
 
 function searchWordOnTargetPage(word, targetLang, dictionaryTab) {
 	console.log(dictionaryTab);
-	chrome.tabs.executeScript(dictionaryTab.id, { code: 'document.getElementById("cdo-search-input").value = "'+word+'"; document.querySelector("'+SUBMIT_BUTTON+'").click();' }, function(e) {
+	chrome.tabs.executeScript(dictionaryTab.id, { code: 'document.getElementById("'+SEARCH_FIELD_ID+'").value = "'+word+'"; document.querySelector("'+SUBMIT_BUTTON+'").click();' }, function(e) {
 		afterUpdateTab(dictionaryTab);
 	});
 }
