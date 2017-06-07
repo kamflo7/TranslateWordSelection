@@ -4,7 +4,8 @@ var onAcceptDialog = function() {
 }
 
 var onDismissDialog = function() {
-	window.parent.postMessage("You've clicked dismiss", "*");
+	//window.parent.postMessage("You've clicked dismiss", "*");
+	window.parent.postMessage({action: 'dismissDialog'}, "*");
 }
 
 var onInputEnter = function(e) {

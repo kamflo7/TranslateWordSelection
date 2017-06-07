@@ -29,6 +29,14 @@ window.addEventListener("message", function(e) {
 			});
 		} else if(e.data.action == "acceptDialog") {
 			chrome.runtime.sendMessage({ action: "acceptDialog", data: e.data.data});
+			removeIframeElement();
+		} else if(e.data.action == "dismissDialog") {
+			removeIframeElement();
 		}
 	}
 });
+
+function removeIframeElement() {
+	var e = document.getElementById("dictionaryIframe");
+	e.parentNode.removeChild(e);
+}
