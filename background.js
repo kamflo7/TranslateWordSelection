@@ -126,15 +126,11 @@ function afterUpdateTab(tab) {
 
 function dispatchWordOutside(word) {	
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-		var currentTabID = tabs[0].id;
-			
+		var currentTabID = tabs[0].id
+
 		if(tabIdInjectedScript != chrome.tabs.TAB_ID_NONE) {
-			var codeScript = 
-				`var rem = document.getElementById("dictionaryIframe");
-				if(rem != null) rem.parentNode.removeChild(rem);
-				`;
-			chrome.tabs.executeScript(tabIdInjectedScript, { code: codeScript }, function() {
-				chrome.tabs.executeScript(null, { file: "injectDialog.js" });
+			chrome.tabs.sendMessage(tabIdInjectedScript, {action: "removeScript"}, function(response) {
+				chrome.tabs.executeScript(currentTabID, { file: "injectDialog.js" });
 				tabIdInjectedScript = currentTabID;
 			});
 		} else {

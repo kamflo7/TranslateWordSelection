@@ -1,6 +1,7 @@
 var extensionOrigin = "chrome-extension://gbhegaeilndhkfpnhdpkbnmolcpaahcd";
 var iframe;
 var onMessageListener;
+var runtimeMessageListener;
 
 function createIframeIntoPage() {
 	iframe = document.createElement('iframe');
@@ -13,19 +14,26 @@ function createIframeIntoPage() {
 	document.body.appendChild(iframe);
 }
 
+
 function removeIframeElement() {
 	var e = document.getElementById("dictionaryIframe");
-	e.parentNode.removeChild(e);
+	if(e != null)
+		e.parentNode.removeChild(e);
 }
 
 function removeMessageListener() {
-	window.removeEventListener("message", onMessageListener);
-	
+	window.removeEventListener("message", onMessageListener);	
+}
+
+function removeRuntimeMessageListener() {
+	if(chrome.runtime.onMessage.hasListener(runtimeMessageListener)) {
+		chrome.runtime.onMessage.removeListener(runtimeMessageListener);
+	}
 }
 
 onMessageListener = function(e) {
 	if(e.origin.indexOf(extensionOrigin) == 0) {
-		console.log("[injectDialog] Got window.message: " + JSON.stringify(e.data));
+		console.log("[injectDialog window.message] Got window.message: " + JSON.stringify(e.data));
 		
 		if(e.data.action == "getTranslationData") {
 			chrome.runtime.sendMessage({ action: "getTranslationData" }, function(response) {
@@ -35,12 +43,26 @@ onMessageListener = function(e) {
 			chrome.runtime.sendMessage({ action: "acceptDialog", data: e.data.data});
 			removeIframeElement();
 			removeMessageListener();
+			removeRuntimeMessageListener();
 		} else if(e.data.action == "dismissDialog") {
+			chrome.runtime.sendMessage({ action: "dismissDialog"});
 			removeIframeElement();
 			removeMessageListener();
+			removeRuntimeMessageListener();
 		}
 	}
 }
 
+runtimeMessageListener = function(request, sender, sendResponse) {
+	if(request.action == "removeScript") {
+		removeIframeElement();
+		removeMessageListener();
+		removeRuntimeMessageListener();
+		
+		console.log("[injectDialog runtime.message] Removed window&runtime listeners and iframe");
+	}
+};
+
 createIframeIntoPage();
 window.addEventListener("message", onMessageListener);
+chrome.runtime.onMessage.addListener(runtimeMessageListener);
