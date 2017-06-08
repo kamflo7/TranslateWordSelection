@@ -1,10 +1,8 @@
 var onAcceptDialog = function() {
-	//window.parent.postMessage("You've clicked accept", "*");
 	window.parent.postMessage({action: 'acceptDialog', data: dialogFieldsToObject()}, "*");
 }
 
 var onDismissDialog = function() {
-	//window.parent.postMessage("You've clicked dismiss", "*");
 	window.parent.postMessage({action: 'dismissDialog'}, "*");
 }
 
@@ -34,8 +32,6 @@ window.onload = function() {
 			document.getElementById("pronunciation").value = translationData.pronunciation;
 			document.getElementById("meaning").value = translationData.translation;
 			document.getElementById("example").value = translationData.example;
-			
-			//document.getElementById("dictionaryDialog").style.backgroundColor = "aqua";
 		}
 	}, false);
 	

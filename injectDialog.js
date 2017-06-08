@@ -1,7 +1,6 @@
-// #3 insert IFRAME to document due to style variations from original sites
 var extensionOrigin = "chrome-extension://gbhegaeilndhkfpnhdpkbnmolcpaahcd";
-
 var iframe;
+var onMessageListener;
 
 function createIframeIntoPage() {
 	iframe = document.createElement('iframe');
@@ -14,29 +13,34 @@ function createIframeIntoPage() {
 	document.body.appendChild(iframe);
 }
 
-console.log("[injectDialog.js] origin: " + window.location.origin);
+function removeIframeElement() {
+	var e = document.getElementById("dictionaryIframe");
+	e.parentNode.removeChild(e);
+}
 
-createIframeIntoPage();
+function removeMessageListener() {
+	window.removeEventListener("message", onMessageListener);
+	
+}
 
-window.addEventListener("message", function(e) {
+onMessageListener = function(e) {
 	if(e.origin.indexOf(extensionOrigin) == 0) {
 		console.log("[injectDialog] Got window.message: " + JSON.stringify(e.data));
 		
 		if(e.data.action == "getTranslationData") {
 			chrome.runtime.sendMessage({ action: "getTranslationData" }, function(response) {
-				//console.log("[injectDialog][Runtime::sendMessage->response (getTranslationData)] I got message: " + JSON.stringify(response));
 				iframe.contentWindow.postMessage({ action: "giveTranslationData", data: response.data}, extensionOrigin);
 			});
 		} else if(e.data.action == "acceptDialog") {
 			chrome.runtime.sendMessage({ action: "acceptDialog", data: e.data.data});
 			removeIframeElement();
+			removeMessageListener();
 		} else if(e.data.action == "dismissDialog") {
 			removeIframeElement();
+			removeMessageListener();
 		}
 	}
-});
-
-function removeIframeElement() {
-	var e = document.getElementById("dictionaryIframe");
-	e.parentNode.removeChild(e);
 }
+
+createIframeIntoPage();
+window.addEventListener("message", onMessageListener);

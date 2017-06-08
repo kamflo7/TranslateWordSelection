@@ -1,3 +1,5 @@
+var extensionOrigin = "chrome-extension://gbhegaeilndhkfpnhdpkbnmolcpaahcd";
+										//gbhegaeilndhkfpnhdpkbnmolcpaahcd
 var SEARCH = "dictionary.cambridge.org";
 var SEARCH_FIELD_ID = "cdo-search-input";
 var SUBMIT_BUTTON = "button.cdo-search__button";
@@ -114,11 +116,6 @@ function afterUpdateTab(tab) {
 			
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", "http://localhost:"+API_port+"/"+API_uriContextCheckWord+"?word="+lastSearchWord, true);
-			/*xhr.onreadystatechange = function() {
-				if (xhr.readyState == 4) {
-
-				}
-			}*/
 			xhr.send();
 			
 			chrome.tabs.onUpdated.removeListener(listener);
@@ -131,31 +128,15 @@ function dispatchWordOutside(word) {
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 		var currentTabID = tabs[0].id;
 			
-		// Could add support to not remove Iframe and create again, if current tab is the same, maybe later
 		if(tabIdInjectedScript != chrome.tabs.TAB_ID_NONE) {
 			var codeScript = 
-					`var rem = document.getElementById("dictionaryIframe");
-					rem.parentNode.removeChild(rem);`;
-			chrome.tabs.executeScript(tabIdInjectedScript, { code: codeScript });
-
-			
-			chrome.tabs.executeScript(null, { file: "injectDialog.js" });
-			tabIdInjectedScript = currentTabID;
-			
-			/*if(tabIdInjectedScript == currentTabID) {
-				
-			} else {
-				console.log("Should delete Iframe");
-
-				var codeScript = 
-					`var rem = document.getElementById("dictionaryIframe");
-					rem.parentNode.removeChild(rem);`;
-				chrome.tabs.executeScript(tabIdInjectedScript, { code: codeScript });
-
-				
+				`var rem = document.getElementById("dictionaryIframe");
+				if(rem != null) rem.parentNode.removeChild(rem);
+				`;
+			chrome.tabs.executeScript(tabIdInjectedScript, { code: codeScript }, function() {
 				chrome.tabs.executeScript(null, { file: "injectDialog.js" });
 				tabIdInjectedScript = currentTabID;
-			}*/
+			});
 		} else {
 			chrome.tabs.executeScript(null, { file: "injectDialog.js" });
 			tabIdInjectedScript = currentTabID;
