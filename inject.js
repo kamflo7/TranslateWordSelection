@@ -14,11 +14,19 @@ window.onload = function() {
 function getTranslationData() {
 	var result = new Object();
 	
+	result.searchWord = getSearchWord();
 	result.pronunciation = getPronunciation();
 	result.translation = getPolishTranslation();
 	result.example = getExample();
 	
 	return result;
+}
+
+function getSearchWord() {
+	var node = document.querySelector("#entryContent > div.cdo-dblclick-area > div > div > div.di-head.normal-entry > h2");
+	if(node == null) return null;
+	
+	return node.innerText.trim();
 }
 
 function getPronunciation() {

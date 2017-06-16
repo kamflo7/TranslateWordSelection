@@ -58,12 +58,6 @@ var tabIdInjectedScript = chrome.tabs.TAB_ID_NONE;
 			
 			xhr.open("GET", "http://localhost:"+API_port+"/"+API_uriContextInsertWord+"?"+query, true);
 			xhr.send();
-			
-			/*
-			var http = new XMLHttpRequest();
-			http.open("POST", "http://localhost:"+API_port+"/"+API_uriContextInsertWord, true);
-			http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			http.send(query);*/
 		}
 	});
 })();
@@ -111,12 +105,19 @@ function afterUpdateTab(tab) {
 			chrome.tabs.sendMessage(tabId, {action: "getTranslation"}, function(response) {
 				console.log("[Background:] getPronunciation resopnse: " + response.data);
 				lastTranslationData = JSON.parse(response.data);
-				lastTranslationData.searchWord = lastSearchWord;
+				
+				if(lastTranslationData.searchWord == null)
+					lastTranslationData.searchWord = lastSearchWord;
+				
+				var xhr = new XMLHttpRequest();
+				xhr.open("GET", "http://localhost:"+API_port+"/"+API_uriContextCheckWord+"?word="+lastTranslationData.searchWord, true);
+				xhr.onreadystatechange = function () {
+					if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+						console.log("ReadyStateChange: " + xhr.responseText);
+					}
+				};
+				xhr.send();
 			});
-			
-			var xhr = new XMLHttpRequest();
-			xhr.open("GET", "http://localhost:"+API_port+"/"+API_uriContextCheckWord+"?word="+lastSearchWord, true);
-			xhr.send();
 			
 			chrome.tabs.onUpdated.removeListener(listener);
 		}
