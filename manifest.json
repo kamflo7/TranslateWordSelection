@@ -43,7 +43,7 @@
   "content_scripts": [
 	{
 		"matches": ["http://dictionary.cambridge.org/*"],
-		"js": ["inject.js"]
+		"js": ["injectProvider.js"]
 	}
   ],
   "web_accessible_resources": [
