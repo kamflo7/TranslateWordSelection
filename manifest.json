@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "My translateExtension",
   "description": "Select the unknow word on page and press ALT+S (PL+EN) or ALT+X (EN)",
-  "version": "1.7",
+  "version": "1.8",
 
   "browser_action": {
     "default_icon": "dictionary.png",
@@ -42,7 +42,7 @@
   
   "content_scripts": [
 	{
-		"matches": ["http://dictionary.cambridge.org/*"],
+		"matches": ["https://dictionary.cambridge.org/*"],
 		"js": ["injectProvider.js"]
 	}
   ],
