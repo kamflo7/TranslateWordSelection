@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DictionaryListener:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DictionaryListener_jar</output-path>
+    <root id="archive" name="DictionaryListener.jar">
+      <element id="module-output" name="DictionaryListener" />
+    </root>
+  </artifact>
+</component>

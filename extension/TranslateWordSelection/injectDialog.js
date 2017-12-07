@@ -1,4 +1,8 @@
-var extensionOrigin = "chrome-extension://gbhegaeilndhkfpnhdpkbnmolcpaahcd";
+// CHANGE THIS LINE BELOW TO APPROPRIATE ID:
+var id = "ajgehhgkbegbofgojojikbmecegofkgd"
+
+
+var extensionOrigin = "chrome-extension://"+id;
 var iframe;
 var onMessageListener;
 var runtimeMessageListener;

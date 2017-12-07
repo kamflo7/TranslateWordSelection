@@ -1,5 +1,8 @@
-var extensionOrigin = "chrome-extension://gbhegaeilndhkfpnhdpkbnmolcpaahcd";
-										//gbhegaeilndhkfpnhdpkbnmolcpaahcd
+// CHANGE THIS LINE BELOW TO APPROPRIATE ID:
+var id = "ajgehhgkbegbofgojojikbmecegofkgd"
+
+
+var extensionOrigin = "chrome-extension://"+id;
 var SEARCH = "dictionary.cambridge.org";
 var SEARCH_FIELD_ID = "cdo-search-input";
 var SUBMIT_BUTTON = "button.cdo-search__button";
@@ -7,7 +10,6 @@ var list = new InfinityFixedList(25);
 
 var lastSearchWord;
 var lastTranslationData;
-
 
 var API_enabled = true;
 var API_port = 9898;
