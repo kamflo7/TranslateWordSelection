@@ -1,6 +1,6 @@
 # Translate Word Selection
 
-Simple chrome extension that improves the search for the definition of an unknow word. You only need to select interested word, press shortcut and you get the result. In addition, extension sends a request to a local server running on your PC to check if the word you are looking for exists in your words list and informs you about that. If word does not exist you can create new a word definition in your list by pressing another shortcut. You will see a dialog with inputs for word, meaning, pronunciation, example to fill. In this way you can fast translate unknow words, add these words to list and finally export this list to Anki which is common spaced repetition system program.
+Simple chrome extension that improves the search for the definition of an unknow word. You only need to select interested word, press shortcut and you get the result. In addition, extension sends a request to a local server running on your PC to check if the word you are looking for exists in your words list and informs you about that. If word does not exist you can create a new word definition in your list by pressing another shortcut. You will see a dialog with inputs for word, meaning, pronunciation, example to fill. In this way you can fast translate unknow words, add these words to list and finally export this list to Anki which is common spaced repetition system program.
 
 [More about Anki](https://apps.ankiweb.net/)
 
