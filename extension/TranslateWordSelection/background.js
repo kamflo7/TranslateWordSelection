@@ -69,7 +69,8 @@ function doTranslateSelection(word, lang) {
 	
 	searchDictionaryTab(function(tab) {
 		if(tab == null) {
-			var href = "http://dictionary.cambridge.org/dictionary/" + (lang == "en" ? "english" : "english-polish") + "/" + word;
+			// var href = "http://dictionary.cambridge.org/dictionary/" + (lang == "en" ? "english" : "english-polish") + "/" + word;
+			var href = "https://dictionary.cambridge.org/search/"+(lang == "en" ? "english" : "english-polish")+"/direct/?q=" + word;
 			chrome.tabs.create({url: href}, function(tab) {
 				afterUpdateTab(tab);
 			});
